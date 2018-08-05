@@ -1,15 +1,11 @@
 #include <SigFox.h>
-#include <SoftwareSerial.h>
-
-String version;
-String ID;
-String PAC;
+#include "gps.h"
 
 void setup() {
-  Serial.begin(9600);
-  delay(500);
 
-  while (!Serial) {};
+  gpsSetup();
+
+  gpsDeactivateStandardNMEAMessages();
 
   if (!SigFox.begin()) {
     Serial.println("Shield error or not present!");
