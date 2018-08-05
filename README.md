@@ -1,1 +1,1 @@
-# Arduino MKR1200 project to geolocate
+# Arduino MKR1200 project to geolocate things
