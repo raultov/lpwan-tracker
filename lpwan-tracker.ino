@@ -1,5 +1,8 @@
 #include <SigFox.h>
+#include "global.h"
 #include "gps.h"
+
+Point point;
 
 void setup() {
 
@@ -21,10 +24,18 @@ void setup() {
 
 void loop() {
   // Start Sigfox module
-  SigFox.begin();
+//  SigFox.begin();
+//  delay(100);
 
-  delay(100);
-
+  do {
+    gpsFillPoint(point);
+    SERIAL_DEBUG_PRINT("\nLatitude: ");
+    SERIAL_DEBUG_PRINT(point.ggaLatitude);
+    SERIAL_DEBUG_PRINT("\nN/S: ");
+    SERIAL_DEBUG_PRINT(point.northSouthIndicator);
+  } while (areCoordinatesStillNotFetched(point));
+  
+/*
   int8_t temperature = (int) SigFox.internalTemperature();
 
   Serial.print("Temperature: ");
@@ -48,7 +59,7 @@ void loop() {
 
   // Send the module to the deepest sleep
   SigFox.end();
-
+*/
   // Wait for 15 minutes until next message
   delay(900000);
 }

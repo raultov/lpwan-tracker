@@ -1,15 +1,15 @@
 #ifndef _GPS_
 #define _GPS_1
 
-#define GPS_DEBUG 1
-
 /**
  * Library to handle NEO-6M GPS module
  */
 
 struct Point {
   String ggaLatitude = String("");
+  char northSouthIndicator = '\0';
   String ggaLongitude = String("");
+  char eastWestIndicator = '\0';
   String accuracy = String("");
   String altitude = String("");
 };
@@ -28,8 +28,13 @@ void gpsSetup();
 void gpsDeactivateStandardNMEAMessages();
 
 /**
- * Returns a Point
+ * Fills a Point
  */
-Point gpsGetPoint();
+void gpsFillPoint(Point & point);
+
+/**
+ * Returns true if proper coordinates are still not set in point.
+ */
+boolean areCoordinatesStillNotFetched(Point point);
 
 #endif

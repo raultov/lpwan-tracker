@@ -1,17 +1,13 @@
 #include <Arduino.h>
+#include "global.h"
 #include "gps.h"
 
 #define DATA_TIMEOUT 120000L
+
 const String PUBX00 = F("PUBX,00,");
 
-#ifdef GPS_DEBUG
-#define GPS_DEBUG_PRINT(X) Serial.print(X)
-#else
-#define GPS_DEBUG_PRINT(X) { // nothing to do }
-#endif
-
 void gpsSetup() {
-  if (GPS_DEBUG) {
+  if (SERIAL_DEBUG) {
     Serial.begin(9600);
     delay(500);
 
@@ -48,13 +44,23 @@ bool waitUntilSerialDataIsAvailable(unsigned long lastTime) {
   while (!Serial1.available() && hasNotExpiredYet(lastTime));
 }
 
-Point gpsGetPoint() {  
+void resetPoint(Point & point) {
+  point.ggaLatitude = String("");
+  point.northSouthIndicator = '\0';
+  point.ggaLongitude = String("");
+  point.eastWestIndicator = '\0';
+  point.accuracy = String("");
+  point.altitude = String("");
+}
+
+void gpsFillPoint(Point & point) {
   delay(2000);
   Serial1.println(F("$PUBX,00*33")); // Request GPS position
   delay(100);
 
+  resetPoint(point);
+
   bool found = false;
-  String receivedData = String(PUBX00);
   int i = 0;
   int numCommas = 0;
   unsigned long lastTime = millis();
@@ -64,7 +70,7 @@ Point gpsGetPoint() {
     waitUntilSerialDataIsAvailable(lastTime);
 
     char c = Serial1.read();
-    GPS_DEBUG_PRINT(c);
+    SERIAL_DEBUG_PRINT(c);
 
     if (i < PUBX00.length()) {
       // Expected response still not found
@@ -76,23 +82,32 @@ Point gpsGetPoint() {
       }
     } else {
       // Expected response was found, now collecting data
-      GPS_DEBUG_PRINT(F("Phrase found"));
-
       if (c == ',') {
         numCommas++;
       } else if (c == '*') {
-        
+        found = true;
       } else {
-        
+        if (numCommas == 1) {
+          // Store latitude
+          point.ggaLatitude += (char) c;
+        } else if (numCommas == 2) {
+          point.northSouthIndicator = (char) c;
+        } else if (numCommas == 3) {
+          point.ggaLongitude += (char) c;
+        } else if (numCommas == 4) {
+          point.eastWestIndicator = (char) c;
+        } else if (numCommas == 5) {
+          point.altitude += (char) c;
+        } else if (numCommas == 7) {
+          point.accuracy += (char) c;
+        }
       }
-
-      receivedData += (char) c;
     }
   }
-  
-  Point p;
-  p.ggaLatitude = String("hello world");
-  return p;
+}
+
+boolean areCoordinatesStillNotFetched(Point point) {
+  return point.ggaLatitude.length() == 0 || point.ggaLatitude == F("0000.00000");
 }
 
 
