@@ -7,7 +7,7 @@
 const String PUBX00 = F("PUBX,00,");
 
 void gpsSetup() {
-  if (SERIAL_DEBUG) {
+  if (DEBUG) {
     Serial.begin(9600);
     delay(500);
 
