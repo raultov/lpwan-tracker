@@ -5,7 +5,6 @@
 
 Point point;
 SigfoxMessage msg;
-uint8_t buffer[100];
 
 void setup() {
 
@@ -14,7 +13,7 @@ void setup() {
   gpsDeactivateStandardNMEAMessages();
 
   if (!SigFox.begin()) {
-    Serial.println(F("Shield error or not present!"));
+    debugPrint(F("Shield error or not present!"));
     reboot();
   }
   
@@ -31,22 +30,12 @@ void loop() {
 
   do {
     gpsFillPoint(point);
-    SERIAL_DEBUG_PRINT(F("\nLatitude: "));
-    SERIAL_DEBUG_PRINT(point.ggaLatitude);
-    SERIAL_DEBUG_PRINT(F("\nN/S: "));
-    SERIAL_DEBUG_PRINT(point.northSouthIndicator);
-    SERIAL_DEBUG_PRINT(F("\n"));
   } while (areCoordinatesStillNotFetched(point));
 
   msg.latitude = point.ggaLatitude.toFloat();
   msg.nsIndicator = point.northSouthIndicator;
   msg.longitude = point.ggaLongitude.toFloat();
   msg.ewIndicator = point.eastWestIndicator;
-
-  Serial.println(msg.latitude, 10);
-  Serial.println(msg.longitude, 10);
-  Serial.println(msg.nsIndicator);
-  Serial.println(msg.ewIndicator);
 
   // Start Sigfox module
   SigFox.begin();
@@ -59,24 +48,16 @@ void loop() {
   
   // Check result
   if (result == 0) {
-    SERIAL_DEBUG_PRINT(F("\nMessage Sent !!!\n"));
+    debugPrint(F("\nMessage Sent !!!\n"));
   } else {
-    SERIAL_DEBUG_PRINT("\nError sending message\n");
+    debugPrint(F("\nError sending message\n"));
   }
   SigFox.end();
   
-/*
-  buffer = (uint8_t*)&msg;
-  3637.0329589844
-  430.2767333984
-  N
-  W
-*/
+  debugPrint(F("Sleeping\n"));
 
-  SERIAL_DEBUG_PRINT(F("\nSleeping\n"));
-
-  // Wait for 5 minutes until next message
-  delay(5 * 60 * 1000);
+  // Wait for 10 minutes until next message
+  delay(10 * 60 * 1000);
 }
 
 void reboot() {

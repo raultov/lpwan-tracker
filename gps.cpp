@@ -6,6 +6,12 @@
 
 const String PUBX00 = F("PUBX,00,");
 
+void debugPrint(String s) {
+  if (DEBUG) {
+    Serial.print(s);
+  }
+}
+
 void gpsSetup() {
   if (DEBUG) {
     Serial.begin(9600);
@@ -70,7 +76,7 @@ void gpsFillPoint(Point & point) {
     waitUntilSerialDataIsAvailable(lastTime);
 
     char c = Serial1.read();
-    SERIAL_DEBUG_PRINT(c);
+    //debugPrint(c);
 
     if (i < PUBX00.length()) {
       // Expected response still not found

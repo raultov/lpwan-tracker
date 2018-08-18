@@ -14,6 +14,8 @@ struct Point {
   String altitude = String("");
 };
 
+void debugPrint(String s);
+
 /**
  * Sets NEO-6M GPS module up
  * 
