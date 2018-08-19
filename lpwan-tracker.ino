@@ -8,6 +8,8 @@ SigfoxMessage msg;
 
 void setup() {
 
+  pinMode(LED_BUILTIN, OUTPUT);
+
   gpsSetup();
 
   gpsDeactivateStandardNMEAMessages();
@@ -28,9 +30,13 @@ void setup() {
 
 void loop() {
 
+  blink(200);
+
   do {
     gpsFillPoint(point);
   } while (areCoordinatesStillNotFetched(point));
+
+  blink(500);
 
   msg.latitude = point.ggaLatitude.toFloat();
   msg.nsIndicator = point.northSouthIndicator;
@@ -48,11 +54,13 @@ void loop() {
   
   // Check result
   if (result == 0) {
+    blink(3000);
     debugPrint(F("\nMessage Sent !!!\n"));
   } else {
+    blink(1000);
     debugPrint(F("\nError sending message\n"));
   }
-  SigFox.end();
+  SigFox.end();;
   
   debugPrint(F("Sleeping\n"));
 
@@ -63,5 +71,11 @@ void loop() {
 void reboot() {
   NVIC_SystemReset();
   while (1) ;
+}
+
+void blink(long d) {
+  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  delay(d);                       // wait for a second
+  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
 }
 
